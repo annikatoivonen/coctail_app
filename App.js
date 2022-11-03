@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, FlatList, Image } from 'react-native';
 import React, { useState } from 'react';
-import { NativeBaseProvider, Box, HStack, Text, Button, Input, Icon, FavouriteIcon } from "native-base";
+import { NativeBaseProvider, Box, HStack, Text, Button, Input, Icon, FavouriteIcon, Heading } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 
@@ -75,7 +75,7 @@ const updateSearch = () => {
     const { name } = route.params;
     const [info, setInfo] = useState([]);
 
-    fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s='+JSON.stringify(name))
+    fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s='+name)
     .then(response => response.json())
     .then(data => setInfo(data.drinks))
     .catch(error => {
@@ -83,18 +83,49 @@ const updateSearch = () => {
     });
 
     return(
+      <NativeBaseProvider>
       <View styles={styles.container}>
-        <FlatList
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({item}) =>
-          <View>
-            <Box w="350">
-            <Text>{item.strDrink}</Text>
+      <FlatList
+            data={info}
+            renderItem={({ item }) =>
+            <Box w="80" bg="secondary.200" rounded="lg" borderColor="secondary.600" borderWidth="3" padding="5" margin="5" alignItems="center">
+            <Box alignItems="center" margin="5">
+            <Heading size="lg">{item.strDrink}</Heading>
             </Box>
-          </View>}
-          data={info}
-        />
+            <Image source={{url: item.strDrinkThumb+'/preview'}} style={styles.image2}></Image>
+              <Text>{item.strCategory}</Text>
+              <Text>{item.strAlcoholic}</Text>
+            <Box alignItems="center" margin="3">
+              <Heading size="sm">Glass:</Heading>
+              <Text>{item.strGlass}</Text>
+            </Box>  
+            <Box alignItems="center" margin="3">
+              <Heading size="sm">Instructions:</Heading>
+              <Text>{item.strInstructions}</Text>
+            </Box>
+            <Box alignItems="center" margin="3">
+              <Heading size="sm">Ingredients:</Heading>
+              <Text>{item.strMeasure1}  {item.strIngredient1}</Text>
+              <Text>{item.strMeasure2}  {item.strIngredient2}</Text>
+              <Text>{item.strMeasure3}  {item.strIngredient3}</Text>
+              <Text>{item.strMeasure4}  {item.strIngredient4}</Text>
+              <Text>{item.strMeasure5}  {item.strIngredient5}</Text>
+              <Text>{item.strMeasure6}  {item.strIngredient6}</Text>
+              <Text>{item.strMeasure7}  {item.strIngredient7}</Text>
+              <Text>{item.strMeasure8}  {item.strIngredient8}</Text>
+              <Text>{item.strMeasure9}  {item.strIngredient9}</Text>
+              <Text>{item.strMeasure10}  {item.strIngredient10}</Text>
+              <Text>{item.strMeasure11}  {item.strIngredient11}</Text>
+              <Text>{item.strMeasure12}  {item.strIngredient12}</Text>
+              <Text>{item.strMeasure13}  {item.strIngredient13}</Text>
+              <Text>{item.strMeasure14}  {item.strIngredient14}</Text>
+              <Text>{item.strMeasure15}  {item.strIngredient15}</Text>
+            </Box>
+            </Box>
+            }>
+        </FlatList>
       </View>
+      </NativeBaseProvider>
     );
   }
 
@@ -127,5 +158,9 @@ const styles = StyleSheet.create({
     width:100,
     height:100,
     marginRight:20,
+  },
+  image2: {
+    width:150,
+    height:150
   }
 });
