@@ -39,9 +39,9 @@ useEffect(() => {
   })
 }, []);
 
-const saveItem = () => {  
+const saveItem = (props) => {  
   push(ref(database, 'items/'),
-{ 'coctailname': newCoctailname});
+{ 'cocktails': props.name });
 }
 
 const deleteItem = (item) => {
@@ -85,11 +85,11 @@ const updateSearch = () => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) =>
           <View>
-            <Box w="350" borderBottomWidth="1" py="2" flexDirection="row" alignItems="center" justifyContent="space-between" margin="2" >
+            <Box w="350" borderBottomWidth="1" py="2" flexDirection="row" alignItems="center" justifyContent="space-between" margin="2">
             <Image source={{url: item.strDrinkThumb+'/preview'}}
             style={styles.image}></Image>
-            <Text fontSize="15" onPress={() => navigation.navigate("Recipe", {name: item.strDrink})}>{item.strDrink}</Text>
-            <Button bg="white" onPress={() => {{setCoctailName(item.strDrink)}; {saveItem};}}><FavouriteIcon color="secondary.800"/></Button>
+            <Text fontSize="12" onPress={() => navigation.navigate("Recipe", {name: item.strDrink})}>{item.strDrink}</Text>
+            <Button bg="white" onPress={() =>  {saveItem(item.strDrink)}}><FavouriteIcon color="secondary.800"/></Button>
             </Box>
           </View>}
           data={repositories}
