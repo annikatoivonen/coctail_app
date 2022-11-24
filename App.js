@@ -39,9 +39,9 @@ useEffect(() => {
   })
 }, []);
 
-const saveItem = (props) => {  
+const saveItem = (item) => {  
   push(ref(database, 'items/'),
-{ 'cocktails': props.name });
+{ 'cocktail': item.strDrink });
 }
 
 const deleteItem = (item) => {
@@ -89,7 +89,7 @@ const updateSearch = () => {
             <Image source={{url: item.strDrinkThumb+'/preview'}}
             style={styles.image}></Image>
             <Text fontSize="12" onPress={() => navigation.navigate("Recipe", {name: item.strDrink})}>{item.strDrink}</Text>
-            <Button bg="white" onPress={() =>  {saveItem(item.strDrink)}}><FavouriteIcon color="secondary.800"/></Button>
+            <Button bg="white" onPress={() =>  {saveItem(item)}}><FavouriteIcon color="secondary.800"/></Button>
             </Box>
           </View>}
           data={repositories}
