@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, FlatList, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { NativeBaseProvider, Box, HStack, Text, Button, Input, Icon, FavouriteIcon, Heading } from "native-base";
+import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 import { initializeApp } from'firebase/app';
@@ -26,7 +26,6 @@ function Coctails( {navigation }){
 
 const [search, setSearch] = useState('');
 const [repositories, setRepositories] = useState([]);
-const [coctailName, setCoctailName] = useState('');
 const [items, setItems] = useState([]);
 
 useEffect(() => {
@@ -89,7 +88,7 @@ const updateSearch = () => {
             <Image source={{url: item.strDrinkThumb+'/preview'}}
             style={styles.image}></Image>
             <Text fontSize="12" onPress={() => navigation.navigate("Recipe", {name: item.strDrink})}>{item.strDrink}</Text>
-            <Button bg="white" onPress={() =>  {saveItem(item)}}><FavouriteIcon color="secondary.800"/></Button>
+            <Button bg="white" onPress={() => {saveItem(item)}}><FavouriteIcon color="secondary.800"/></Button>
             </Box>
           </View>}
           data={repositories}
@@ -101,7 +100,34 @@ const updateSearch = () => {
   }
 
   function Favourites({ route, navigation }){
-    
+    const { items } = route.params;
+
+    fetch('www.thecocktaildb.com/api/json/v1/1/search.php?s='+items.cocktail)
+    .then(response => response.json())
+    .then(data => setInfo(data.drinks))
+    .catch(error => {
+      Alert.alert('Error', error);
+    });
+
+    return(
+      <NativeBaseProvider>
+        <View>
+         <FlatList
+          keyExtractor={item => item.key}
+          renderItem={({item}) =>
+          <View>
+            <Box w="350" borderBottomWidth="1" py="2" flexDirection="row" alignItems="center" justifyContent="space-between" margin="2">
+            <Image source={{url: item.strDrinkThumb+'/preview'}}
+            style={styles.image}></Image>
+            <Text fontSize="15"onPress={() => navigation.navigate("Recipe", {name: item.cocktail})}>{item.cocktail}</Text>
+            <Button bg="white" onPress={() =>  deleteItem(item)}><DeleteIcon color="secondary.800"/></Button>
+            </Box>
+          </View>}
+          data={items}
+          />
+          </View>
+      </NativeBaseProvider>
+    );
   }
 
   function Recipe({ route, navigation }){
