@@ -40,7 +40,6 @@ useEffect(() => {
 }, []);
 
 const saveItem = () => {  
-  const newCoctailname = coctailName;
   push(ref(database, 'items/'),
 { 'coctailname': newCoctailname});
 }
