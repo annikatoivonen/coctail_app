@@ -1,18 +1,54 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, FlatList, Image } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NativeBaseProvider, Box, HStack, Text, Button, Input, Icon, FavouriteIcon, Heading } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
+import { initializeApp } from'firebase/app';
+import { getDatabase, push, ref, onValue } from'firebase/database';
 
 const Stack = createNativeStackNavigator();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAgJ8FskzBjYcfeCAq3U222Bd2GwbQ4eN0",
+  authDomain: "cocktail-de27e.firebaseapp.com",
+  databaseURL: "https://cocktail-de27e-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cocktail-de27e",
+  storageBucket: "cocktail-de27e.appspot.com",
+  messagingSenderId: "676849242590",
+  appId: "1:676849242590:web:cc940fb468bc2710024d4f"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 function Coctails( {navigation }){
 
 const [search, setSearch] = useState('');
 const [repositories, setRepositories] = useState([]);
-const [coctailName, setCoctailname] = useState([]);
+const [coctailName, setCoctailName] = useState('');
+const [items, setItems] = useState([]);
 
+useEffect(() => {
+  const itemsRef = ref(database, 'items/');
+  onValue(itemsRef, (snapshot) => {
+    const data = snapshot.val();
+    
+    const stuff = data ? Object.keys(data).map(key => ({key, ...data[key]})) : [];
+    setItems(stuff);
+  })
+}, []);
+
+const saveItem = () => {  
+  const newCoctailname = coctailName;
+  push(ref(database, 'items/'),
+{ 'coctailname': newCoctailname});
+}
+
+const deleteItem = (item) => {
+ console.log(item);
+ remove(ref(database, 'items/'+item.key))
+}
 
 const updateSearch = () => {
     fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?i='+search)
@@ -26,11 +62,10 @@ const updateSearch = () => {
   return (
     <NativeBaseProvider>
     <View style={styles.container}>
-      
       <View style={{flex:0.5, justifyContent:'center'}}>
         <HStack w="350" bg="secondary.600" py="3" px="1" justifyContent="space-between" alignItems="center">
           <Text color="white" fontSize="25">Coctails</Text>
-          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {coctailName})}><FavouriteIcon color="secondary.100" size="8"/></Button>
+          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {items})}><FavouriteIcon color="secondary.100" size="8"/>My favorities</Button>
         </HStack>
       <Box w="80" rounded="lg" borderColor="secondary.200" borderWidth="1" padding="5" margin="2">
         <Input
@@ -55,7 +90,7 @@ const updateSearch = () => {
             <Image source={{url: item.strDrinkThumb+'/preview'}}
             style={styles.image}></Image>
             <Text fontSize="15" onPress={() => navigation.navigate("Recipe", {name: item.strDrink})}>{item.strDrink}</Text>
-            <Button bg="white"><FavouriteIcon color="secondary.800"/></Button>
+            <Button bg="white" onPress={() => {{setCoctailName(item.strDrink)}; {saveItem};}}><FavouriteIcon color="secondary.800"/></Button>
             </Box>
           </View>}
           data={repositories}
@@ -85,15 +120,16 @@ const updateSearch = () => {
     return(
       <NativeBaseProvider>
       <View styles={styles.container}>
-      <FlatList
+      <Box bg="secondary.500" alignItems="center"><FlatList
             data={info}
             renderItem={({ item }) =>
-            <Box w="80" bg="secondary.200" rounded="lg" borderColor="secondary.600" borderWidth="3" padding="5" margin="5" alignItems="center">
+            
+            <Box w="80" bg="white" rounded="lg" borderColor="secondary.300" borderWidth="3" marginTop="5" alignItems="center">
             <Box alignItems="center" margin="5">
             <Heading size="lg">{item.strDrink}</Heading>
             </Box>
             <Image source={{url: item.strDrinkThumb+'/preview'}} style={styles.image2}></Image>
-              <Text>{item.strCategory}</Text>
+              <Text fontSize="12">{item.strCategory}</Text>
               <Text>{item.strAlcoholic}</Text>
             <Box alignItems="center" margin="3">
               <Heading size="sm">Glass:</Heading>
@@ -123,7 +159,7 @@ const updateSearch = () => {
             </Box>
             </Box>
             }>
-        </FlatList>
+        </FlatList></Box>
       </View>
       </NativeBaseProvider>
     );
@@ -161,6 +197,7 @@ const styles = StyleSheet.create({
   },
   image2: {
     width:150,
-    height:150
+    height:150,
+    marginBottom: 10,
   }
 });
