@@ -1,11 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, FlatList, Image } from 'react-native';
+import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, FlatList, Image, DevSettings } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading } from "native-base";
+import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading, Center, AlertDialog } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 import { initializeApp } from'firebase/app';
-import { getDatabase, push, ref, onValue } from'firebase/database';
+import { getDatabase, push, ref, onValue, remove } from'firebase/database';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +21,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
 
 function Coctails( {navigation }){
 
@@ -40,13 +41,13 @@ useEffect(() => {
 
 const saveItem = (item) => {  
   push(ref(database, 'items/'),
-{ 'cocktail': item.strDrink });
+{ 'cocktail': item.strDrink, 'image': item.strDrinkThumb });
 }
 
 const deleteItem = (item) => {
- console.log(item);
- remove(ref(database, 'items/'+item.key))
-}
+  console.log(item);
+  remove(ref(database, 'items/'+item.key))
+ }
 
 const updateSearch = () => {
     fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?i='+search)
@@ -63,7 +64,7 @@ const updateSearch = () => {
       <View style={{flex:0.5, justifyContent:'center'}}>
         <HStack w="350" bg="secondary.600" py="3" px="1" justifyContent="space-between" alignItems="center">
           <Text color="white" fontSize="25">Coctails</Text>
-          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {items})}><FavouriteIcon color="secondary.100" size="8"/>My favorities</Button>
+          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {items, deleteItem})}><FavouriteIcon color="secondary.100" size="8"/>My Favourites</Button>
         </HStack>
       <Box w="80" rounded="lg" borderColor="secondary.200" borderWidth="1" padding="5" margin="2">
         <Input
@@ -100,31 +101,58 @@ const updateSearch = () => {
   }
 
   function Favourites({ route, navigation }){
-    const { items } = route.params;
+    const { items, deleteItem }  = route.params;
+    const [isOpen, setIsOpen] = React.useState(false);
 
-    fetch('www.thecocktaildb.com/api/json/v1/1/search.php?s='+items.cocktail)
-    .then(response => response.json())
-    .then(data => setInfo(data.drinks))
-    .catch(error => {
-      Alert.alert('Error', error);
-    });
+    const onClose = () => setIsOpen(false);
+    const cancelRef = React.useRef(null);
+
 
     return(
       <NativeBaseProvider>
-        <View>
+        <View style={styles.container}>
+        <View style={{flex:0.5, justifyContent:'center'}}>
+        <HStack w="350" bg="secondary.600" py="3" px="1" justifyContent="center" alignItems="center">
+          <Text color="white" fontSize="25">Favourites</Text>
+        </HStack>
+        
          <FlatList
           keyExtractor={item => item.key}
           renderItem={({item}) =>
           <View>
             <Box w="350" borderBottomWidth="1" py="2" flexDirection="row" alignItems="center" justifyContent="space-between" margin="2">
-            <Image source={{url: item.strDrinkThumb+'/preview'}}
+            <Image source={{url: item.image+'/preview'}}
             style={styles.image}></Image>
-            <Text fontSize="15"onPress={() => navigation.navigate("Recipe", {name: item.cocktail})}>{item.cocktail}</Text>
-            <Button bg="white" onPress={() =>  deleteItem(item)}><DeleteIcon color="secondary.800"/></Button>
+            <Text fontSize="12"onPress={() => navigation.navigate("Recipe", {name: item.cocktail})}>{item.cocktail}</Text>
+            <Center>
+      <Button bg="white" onPress={() => setIsOpen(!isOpen)}>
+      <DeleteIcon color="secondary.800"/>
+      </Button>
+      <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
+        <AlertDialog.Content>
+          <AlertDialog.CloseButton />
+          <AlertDialog.Header>Delete Favorite</AlertDialog.Header>
+          <AlertDialog.Body>
+            Are you sure you want to delete this drink from your favourites?
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <Button.Group space={2}>
+              <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
+                Cancel
+              </Button>
+              <Button colorScheme="secondary" onPress={() =>  {deleteItem(item);}} onPressIn={onClose}>
+                Delete
+              </Button>
+            </Button.Group>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
+    </Center>
             </Box>
           </View>}
           data={items}
           />
+          </View>
           </View>
       </NativeBaseProvider>
     );
