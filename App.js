@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, FlatList, Image, Alert, RefreshControl } from 'react-native';
+import { StyleSheet, View, FlatList, Image, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { NativeBaseProvider, Box, HStack, VStack, IconButton, CloseIcon, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading } from "native-base";
+import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 import { initializeApp } from'firebase/app';
-import { getDatabase, push, ref, onValue, remove, child } from'firebase/database';
+import { getDatabase, push, ref, onValue, remove } from'firebase/database';
 
 const Stack = createNativeStackNavigator();
 
@@ -112,6 +112,7 @@ const updateSearch = () => {
           "Drink deleted!",
         )
       )
+      
     }
 
     const deleteItem = (item) => {
