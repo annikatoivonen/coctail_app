@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, FlatList, Image } from 'react-native';
+import { StyleSheet, View, FlatList, Image, Alert, RefreshControl } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading, Center, AlertDialog } from "native-base";
+import { NativeBaseProvider, Box, HStack, VStack, IconButton, CloseIcon, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 import { initializeApp } from'firebase/app';
-import { getDatabase, push, ref, onValue, remove } from'firebase/database';
+import { getDatabase, push, ref, onValue, remove, child } from'firebase/database';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,15 +40,16 @@ useEffect(() => {
   })
 }, []);
 
-const saveItem = (item) => {  
+const saveItem = (item) => {
   push(ref(database, 'items/'),
 { 'cocktail': item.strDrink, 'image': item.strDrinkThumb });
+return(
+  Alert.alert(
+    item.strDrink,
+    "Saved to favourites!"
+  )
+)
 }
-
-const deleteItem = (item) => {
-  console.log(item);
-  remove(ref(database, 'items/'+item.key))
- }
 
 const updateSearch = () => {
     fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?i='+search)
@@ -104,9 +105,19 @@ const updateSearch = () => {
   function Favourites({ route, navigation }){
     const { items, database }  = route.params;
 
+    const success = (item) => {
+         return(
+         Alert.alert(
+          item.cocktail,
+          "Drink deleted!",
+        )
+      )
+    }
+
     const deleteItem = (item) => {
       console.log(item);
-      remove(ref(database, 'items/'+item.key))
+      remove(ref(database, 'items/'+item.key));
+      success(item);
      }
 
     return(
@@ -136,8 +147,6 @@ const updateSearch = () => {
     );
   }
 
-
-
   function Recipe({ route, navigation }){
 
     const { name } = route.params;
@@ -153,7 +162,7 @@ const updateSearch = () => {
     return(
       <NativeBaseProvider>
       <View styles={styles.container}>
-      <Box bg="secondary.500" alignItems="center"><FlatList
+      <Box bg="secondary.600" alignItems="center"><FlatList
             data={info}
             renderItem={({ item }) =>
             
