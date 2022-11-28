@@ -65,7 +65,7 @@ const updateSearch = () => {
       <View style={{flex:0.5, justifyContent:'center'}}>
         <HStack w="350" bg="secondary.600" py="3" px="1" justifyContent="space-between" alignItems="center">
           <Text color="white" fontSize="25">Coctails</Text>
-          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {items, deleteItem})}><FavouriteIcon color="secondary.100" size="8"/>My Favourites</Button>
+          <Button bg="secondary.600" onPress={() => navigation.navigate('Favourites', {items, database})}><FavouriteIcon color="secondary.100" size="8"/>My Favourites</Button>
         </HStack>
       <Box w="80" rounded="lg" borderColor="secondary.200" borderWidth="1" padding="5" margin="2">
         <Input
@@ -102,12 +102,12 @@ const updateSearch = () => {
   }
 
   function Favourites({ route, navigation }){
-    const { items, deleteItem }  = route.params;
-    const [isOpen, setIsOpen] = React.useState(false);
+    const { items, database }  = route.params;
 
-    const onClose = () => setIsOpen(false);
-    const cancelRef = React.useRef(null);
-
+    const deleteItem = (item) => {
+      console.log(item);
+      remove(ref(database, 'items/'+item.key))
+     }
 
     return(
       <NativeBaseProvider>
@@ -125,30 +125,7 @@ const updateSearch = () => {
             <Image source={{url: item.image+'/preview'}}
             style={styles.image}></Image>
             <Text fontSize="12"onPress={() => navigation.navigate("Recipe", {name: item.cocktail})}>{item.cocktail}</Text>
-            <Center>
-      <Button bg="white" onPress={() => setIsOpen(!isOpen)}>
-      <DeleteIcon color="secondary.800"/>
-      </Button>
-      <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
-        <AlertDialog.Content>
-          <AlertDialog.CloseButton />
-          <AlertDialog.Header>Delete Favorite</AlertDialog.Header>
-          <AlertDialog.Body>
-            Are you sure you want to delete this drink from your favourites?
-          </AlertDialog.Body>
-          <AlertDialog.Footer>
-            <Button.Group space={2}>
-              <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
-                Cancel
-              </Button>
-              <Button colorScheme="secondary" onPress={() =>  {deleteItem(item);}} onPressIn={onClose}>
-                Delete
-              </Button>
-            </Button.Group>
-          </AlertDialog.Footer>
-        </AlertDialog.Content>
-      </AlertDialog>
-    </Center>
+            <Button bg="white" onPress={() => {deleteItem(item)}}><DeleteIcon color="secondary.800"/></Button>
             </Box>
           </View>}
           data={items}
