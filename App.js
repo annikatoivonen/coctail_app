@@ -1,5 +1,5 @@
-import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, FlatList, Image, DevSettings } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, FlatList, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { NativeBaseProvider, Box, HStack, Text, Button, Input, DeleteIcon, FavouriteIcon, Heading, Center, AlertDialog } from "native-base";
 import { NavigationContainer } from'@react-navigation/native';
@@ -21,6 +21,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
 
 
 function Coctails( {navigation }){
@@ -82,7 +83,7 @@ const updateSearch = () => {
         </Button>
       </Box></View>
         <FlatList style={{flex:6}}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => index}
           renderItem={({item}) =>
           <View>
             <Box w="350" borderBottomWidth="1" py="2" flexDirection="row" alignItems="center" justifyContent="space-between" margin="2">
@@ -111,11 +112,11 @@ const updateSearch = () => {
     return(
       <NativeBaseProvider>
         <View style={styles.container}>
-        <View style={{flex:0.5, justifyContent:'center'}}>
+        <View style={{justifyContent:'center'}}>
         <HStack w="350" bg="secondary.600" py="3" px="1" justifyContent="center" alignItems="center">
           <Text color="white" fontSize="25">Favourites</Text>
         </HStack>
-        
+
          <FlatList
           keyExtractor={item => item.key}
           renderItem={({item}) =>
@@ -157,6 +158,8 @@ const updateSearch = () => {
       </NativeBaseProvider>
     );
   }
+
+
 
   function Recipe({ route, navigation }){
 
